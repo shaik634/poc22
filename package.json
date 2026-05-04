@@ -1,4 +1,13 @@
-"scripts": {
-  "start": "node app.js",
-  "test": "echo \"No tests yet\""
+{
+  "name": "poc22",
+  "version": "1.0.0",
+  "description": "POC 22 Node.js app deployed via GitHub Actions to EC2",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"No tests defined\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
