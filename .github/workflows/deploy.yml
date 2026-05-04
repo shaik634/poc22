@@ -20,7 +20,7 @@ jobs:
     - name: Configure AWS credentials (OIDC)
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: arn:aws:iam::<ACCOUNT-ID>:role/github-actions-ssm-role
+        role-to-assume: arn:aws:iam::374834404321:role/github-actions-ssm-role
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Upload app bundle to EC2 via SSM
