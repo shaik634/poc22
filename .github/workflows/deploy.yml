@@ -34,7 +34,7 @@ jobs:
           cd ${{ secrets.APP_PATH }}
           pm2 stop nodeapp || true
           rm -rf *
-          git clone https://github.com/shaik5243/poc22.git .
+          git clone https://github.com/shaik634/poc22.git .
           npm install
           pm2 start app.js --name nodeapp
           pm2 save
