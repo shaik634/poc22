@@ -1,4 +1,4 @@
-name: Deploy Node App to EC2
+name: Deploy Node App via AWS SSM
 
 on:
   push:
@@ -9,34 +9,32 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::<ACCOUNT-ID>:role/github-actions-ssm-role
+        aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test || true
-
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          timeout: 120s
-          script_stop: true
-          script: |
-            cd ${{ secrets.APP_PATH }}
-            pm2 stop nodeapp || true
-            rm -rf *
-            git clone https://github.com/shaik634/poc22.git .
-            npm install
-            pm2 start app.js --name nodeapp
-            pm2 save
+    - name: Upload app bundle to EC2 via SSM
+      run: |
+        aws ssm send-command \
+          --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploy Node.js app" \
+          --parameters commands='[
+            "cd /opt/nodeapp",
+            "pm2 stop nodeapp || true",
+            "rm -rf *",
+            "git clone https://github.com/shaik634/poc22.git .",
+            "npm install",
+            "pm2 start app.js --name nodeapp",
+            "pm2 save"
+          ]'
